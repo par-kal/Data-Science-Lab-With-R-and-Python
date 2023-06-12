@@ -1,0 +1,234 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*. 
+
+
+
+Normal Distribution in R
+
+To start, let’s look at the standard normal distribution. R is very good (using the norm functions) at generating a simulated data set with a normal distribution. The standard normal distribution is a normal distribution with a mean of 0 and standard deviation of 1.
+
+```{r}
+x.values = seq(-4,4, length = 1000)
+y.values = dnorm(x.values)
+plot(x.values, y.values, type="l", lty=1, xlab="Z value", ylab="Probability", main="Normal Distribution")
+
+```
+
+To start, for each of the 3 lines of code, reason out what is happening. What variables were created and how did we ensure that the data generated followed a normal distribution?
+
+Now, just like in the past with pbinom, we can ask how much of the curve falls below a particular value.In this case we’ll ask about the value 0 before running the code, think to yourself what the answer should be.
+
+```{r}
+pnorm(0)
+
+```
+
+A. Probabilities associated with values < or > z ———————— In the examples below, we’ll use z values of + 1.96 and -1.96 because we know that these approximate values mark off the upper and lower 2.5% of the standard normal distribution. Therefore, this corresponds to a typical alpha = 0.05 for a two-tailed hypothesis test (which we will learn more about in the coming weeks).
+
+```{r}
+pnorm(1.96, lower.tail=TRUE)
+
+```
+
+
+The answer tells us what we already know: 97.5% of the normal distribution occurs below the z-value of 1.96.
+
+We can add a line to the plot to show where this would be using abline. 97.5% of the distribution falls below this line
+
+```{r}
+plot(x.values, y.values, type="l", lty=1, xlab="Z value", ylab="Probability", main="Normal Distribution")
+abline(v = 1.96)
+```
+
+Exercise 1: Use the abline() function to add lines at the appropriate z-score to demonstrate the 68-95-99.7 of this standard normal curve.
+
+```{r}
+plot(x.values, y.values, type="l", lty=1, xlab="Z value", ylab="Probability", main="Normal Distribution")
+
+```{r}
+abline(v = 1)
+abline(v = -1)
+```
+
+
+
+```{r}
+abline(v = 2)
+abline(v = -2)
+```
+
+
+```{r}
+abline(v = 3)
+```
+
+
+We can also do the reverse, deciding first how much probability we want (percentile) and then calculating what critical values are associated with those probabilities. This uses the qnorm function. If we want to know what z value marked off the lower 2.5% of a standard normal distribution, we would use:
+
+```{r}
+qnorm(0.025)
+```
+
+This tells us that the z value of -1.96 marks off the lower 2.5% of thestandard normal distribution. To determine the z value that marks off the upper 2.5% of the distribution, I type:
+
+```{r}
+qnorm(0.975)
+``` 
+
+Exercise 2: So far we have demonstrated everything with a standard normal distribution. But most normal curves are not standard normal. Generate a curve (like we did above for the standard normal distribution) and plot it with a mean of 20 and a standard deviation of 1.65. Identify the value at which 97.5% of the distribution falls below this value.
+
+```{r}
+x.values = seq(10,30, length = 1000)
+y.values = dnorm(x.values, 20, 1.65)
+plot(x.values, y.values, type="l", lty=1, xlab="Z value", ylab="Probability", main="Normal Distribution")
+```
+
+```{r}
+qnorm(.975, 20, 1.65)
+```
+
+
+Now that we have generated normal distributions, lets take a look at some read data and compare it to the normal distribution. Run the following lines of code, which will download and load a dataset of measurements from 247 men and 260 women, most of whom were considered healthy young adults. You’ll see that for every observation we have 25 measurements, many of which are either diameters or girths. A key to the variable names can be found at http://www.openintro.org/stat/data/bdims.php, but we’ll be focusing on just three columns to get started: weight in kg (wgt), height in cm (hgt), and sex (1 indicates male, 0 indicates female).
+
+```{r}
+download.file("http://www.openintro.org/stat/data/bdims.RData", destfile = "bdims.RData")
+
+
+```{r}
+load("bdims.RData")
+```
+
+Since this dataset contains both men and women, it would be helpful to seperate the data into two sets, one of females and one of males. There is a great function in R that can subset by a categorical varaible. After running the code below, determine what datasets are newly generated and the purpose of each of the arguments in subset(). Does the number of observations in each of the new dataframes agree with the number of men and women I told you were in the total dataset?
+
+```{r}
+mdims <- subset(bdims, sex == 1)
+fdims <- subset(bdims, sex == 0)
+
+```
+
+
+Exercise 1: Make a histogram of men’s heights and a histogram of women’s heights. How would you compare the various aspects of the two distributions?
+
+```{r}
+hist(mdims$hgt, xlim = c(150,200))
+
+```
+
+```{r}
+hist(fdims$hgt, xlim = c(140,190))
+
+```
+
+Exercise 2: scale is a function in R, and can be applied to any numeric vector (list of numbers in R). Generate the two histograms below, this time graphing the scale() of the heights and determine how the scaled version of the heights correspond to the original heights. What is scale calculating for each point?
+
+```{r}
+hist(scale(mdims$hgt))
+
+```
+
+
+
+```{r}
+hist(scale(fdims$hgt))
+```
+
+
+We would like to compare the distribution of heights in this dataset to the normal distribution. To each of the histograms of heights (not scaled) plot a normal curve on top of the histogram. 1. calcualte the mean and standard deviation for the female heights and save them as variables, fhgtmean and fhgtsd, respectively. 2. Determine the list of x values (the range of the X-axis) and save this vector (list). You can easily make a list of numbers using the seq() function as we have done before, or having the lower limit:upper limit. For example, to generate a vector (list of numbers) of 1 to 10 and save it as one_ten I would one_ten <- 1:10. 3. As above, use dnorm() to take in the list of x values and find the corresponding y value if it were a perfect normal distribution. Save this vector as the variable y. lines() can plot a line on another graph. 4. Replot your histogram and then in the next line use lines(x = x, y = y, col = “blue”) to draw a normal distribution on top of it. How would you change the y-axis so that the normal curve is not cut off?
+
+```{r}
+fhgtmean <- mean(fdims$hgt)
+fhgtsd   <- sd(fdims$hgt)
+hist(fdims$hgt, probability = TRUE)
+x <- 140:190
+y <- dnorm(x = x, mean = fhgtmean, sd = fhgtsd)
+lines(x = x, y = y, col = "blue")
+
+```
+
+How would you change the y-axis so that the normal curve is not cut off?
+
+```{r}
+hist(fdims$hgt, probability = TRUE, ylim = c(0, .07))
+x <- 140:190
+y <- dnorm(x = x, mean = fhgtmean, sd = fhgtsd)
+lines(x = x, y = y, col = "blue")
+
+```
+
+
+Based on the this plot, does it appear that the data follow a nearly normal distribution? Do the same thing for the male heights.
+
+
+Eyeballing the shape of the histogram is one way to determine if the data appear to be nearly normally distributed, but it can be frustrating to decide just how close the histogram is to the curve. An alternative approach involves constructing a normal probability plot, also called a normal Q-Q plot for “quantile-quantile” (as we discussed in class). Run both lines together than run qqline() after qqnorm() to determine what qqline() is doing.
+
+```{r}
+qqnorm(fdims$hgt)
+qqline(fdims$hgt)
+```
+
+
+It can be hard to determine even from a Q-Q plot if the data is normally distributed. Thus, it can be helpful to run a normal simulation (like the binomial simulations we ran in the last exercise!) and look at their Q-Q plots to see if the read data looks pretty similar or not. A useful way to address this question is to rephrase it as: what do probability plots look like for data that I know came from a normal distribution? We can answer this by simulating data from a normal distribution using rnorm. Run the code below and look at the output to determine what each part of the code is doing. Run a similar simulation for the male heights.
+
+```{r}
+sim_norm_f <- rnorm(n = length(fdims$hgt), mean = fhgtmean, sd = fhgtsd)
+```
+
+Make a normal probability plot of sim_norm. Do all of the points fall on the line? How does this plot compare to the probability plot for the real data?
+
+```{r}
+qqnorm(sim_norm_f)
+qqline(sim_norm_f)
+
+```
+
+It can be helpful to look at multiple simulations of QQ plots to determine if your data is distributed normally. R has a built in function (so you don’t have to run mulitple simulations and plot each of them individually) called qqnormsim. Run the line below and look at the output. Does the normal probability plot for fdims$hgt look similar to the plots created for the simulated data? That is, do plots provide evidence that the female heights are nearly normal? Do the same for the male heights.
+
+```{r}
+qqnormsim(fdims$hgt)
+```
+
+
+It turns out that statisticians know a lot about the normal distribution. Once we decide that a random variable is approximately normal, we can answer all sorts of questions about that variable related to probability. Take, for example, the question of, “What is the probability that a randomly chosen young adult female is taller than 6 feet (about 182 cm)?” (The study that published this data set is clear to point out that the sample was not random and therefore inference to a general population is not suggested. We do so here only as an exercise.)
+
+If we assume that female heights are normally distributed (a very close approximation is also okay), we can find this probability by calculating a Z score and consulting a Z table (also called a normal probability table). In R, this is done in one step with the function pnorm (as we did above for the standard normal distribution).
+
+```{r}
+1 - pnorm(q = 182, mean = fhgtmean, sd = fhgtsd)
+
+```
+
+Why did we use 1 - pnorm() in this example?
+
+Assuming a normal distribution has allowed us to calculate a theoretical probability. If we want to calculate the probability empirically, we simply need to determine how many observations fall above 182 then divide this number by the total sample size.
+
+```{r}
+sum(fdims$hgt > 182) / length(fdims$hgt)
+```
+
+
+Although the probabilities are not exactly the same, they are reasonably close. The closer that your distribution is to being normal, the more accurate the theoretical probabilities will be.
+
+Determine the probability of a female being under 5 feet 2 inches tall. What about male? What is the probability that a female is between 5 feet 2 inches and 5 feet 7 inches tall?
+
+```{r}
+pnorm(157.48, fhgtmean, fhgtsd)
+```
+
+What is the height in which 95% of females are shorter than this height?
+
+```{r}
+qnorm(.95, fhgtmean, fhgtsd)
+```
+
+
+At 5 feet 9 inches, 95% of women are below this height.
+
+For the dataset bdims, choose 4 more of the variables to assess whether or not you think the datasets are normal using the strategy above. To take a look at what the variables are (and their abbreviated headers) you can look here: http://www.openintro.org/stat/data/bdims.php Additionally, for each variable consider whether you think it is most reasonable to evaluate the entire dataset together or the males and females seperately as we did for height.
+
+You could do a lot of different datasets here, using the same techniques as above. I really encourage you to do this so that you can get familiar with modeling the normal distribution in R.

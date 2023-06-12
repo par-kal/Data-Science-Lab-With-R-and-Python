@@ -1,0 +1,34 @@
+---
+title: "Analysis"
+ATDP Data Science Lab with R & Python
+Section 1
+Parsh Gandhi
+---
+
+Storing the "AirPassangers" data set as a object in the R global enviorment
+```{r}
+
+AP <- AirPassengers
+AP
+
+```
+
+Making a linear regression model for the Passengers data set(EDA #1)
+```{r}
+
+autoplot(AP) + labs(x="Time", y ="Passenger numbers ('000)", title="Air Passengers from 1949 to 1961") + theme_classic() + geom_smooth()
+
+```
+
+Making a boxplot for the Passengers data set(EDA #2)
+```{r}
+
+boxplot(AP~cycle(AP), xlab="Passenger Numbers(In Thousands)", ylab="Months", col=rgb(0.1,0.9,0.3,0.4), main="Monthly Air Passengers Boxplot from 1949 to 1961", horizontal=TRUE, notch=FALSE)
+
+```
+
+Making a ARIMA(Auto regressive integrated moving average) plot as the final model
+```{r}
+arimaAP <- auto.arima(AP)
+arimaAP
+```
